@@ -72,6 +72,7 @@ class SlackService {
             await this.#openedPage.waitForNavigation({waitUntil: 'domcontentloaded'});
             var url = await this.#openedPage.url();
             this.#configuration.clientUrl = url;
+            this.#states.isInChannel = true;
             // TODO: Catch if login fail
         }
         
@@ -87,6 +88,7 @@ class SlackService {
         console.log('🤞 Joing huddle...');
         this.#openedPage.screenshot({path: 'beforeJoinHuddle.png'});
         await this.#openedPage.goto(`${this.#configuration.clientUrl}\\${this.#configuration.huddleChannel}`, {waitUntil: 'domcontentloaded'});
+        await this.#openedPage.waitForTimeout(5 * 1000);
         await this.#openedPage.waitForSelector('#huddle_toggle');
         await this.#openedPage.click('#huddle_toggle');
         console.log('✅ Here we go! I\'m in huddle.');
