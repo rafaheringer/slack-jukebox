@@ -1,5 +1,5 @@
-import puppeteer from 'puppeteer-core';
 import 'dotenv/config.js';
+import puppeteer from 'puppeteer-core';
 
 class SlackService {
 
@@ -10,7 +10,8 @@ class SlackService {
         slackPass: process.env.SLACK_PASSWORD,
         huddleChannel: process.env.SLACK_CHANNEL_ID,
         developMode: process.env.NODE_ENV === 'development',
-        chromePath: process.env.CHROMIUM_PATH
+        chromePath: process.env.CHROMIUM_PATH,
+        isInDocker: process.env.DOCKER_ENV
     };
 
     #browserInstance;
@@ -26,8 +27,8 @@ class SlackService {
 
     async init() {
         this.#browserInstance = await puppeteer.launch({
-            headless: !this.#configuration.developMode,
-            slowMo: this.#configuration.developMode ? 50 : 0,
+            headless: typeof this.#configuration.isInDocker === 'undefined' ? false : true,
+            slowMo: 50, //this.#configuration.developMode ? 50 : 0,
             executablePath: this.#configuration.chromePath,
             userDataDir: '.data/slack',
             args: ['--use-fake-ui-for-media-stream', '--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox'],
@@ -88,7 +89,6 @@ class SlackService {
         console.log('🤞 Joing huddle...');
         this.#openedPage.screenshot({path: 'beforeJoinHuddle.png'});
         await this.#openedPage.goto(`${this.#configuration.clientUrl}\\${this.#configuration.huddleChannel}`, {waitUntil: 'domcontentloaded'});
-        await this.#openedPage.waitForTimeout(5 * 1000);
         await this.#openedPage.waitForSelector('#huddle_toggle');
         await this.#openedPage.click('#huddle_toggle');
         console.log('✅ Here we go! I\'m in huddle.');

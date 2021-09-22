@@ -160,3 +160,14 @@ Training
 Blog
 About
 .data
+
+# JPEG
+*.jpg
+*.jpeg
+*.jpe
+*.jif
+*.jfif
+*.jfi
+
+# Portable Network Graphics
+*.png

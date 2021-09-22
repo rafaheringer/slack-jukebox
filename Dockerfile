@@ -12,6 +12,7 @@ RUN apk add --update --no-cache \
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
 ENV CHROMIUM_PATH="/usr/bin/chromium-browser"
 ENV PUPPETEER_EXECUTABLE_PATH="${CHROMIUM_PATH}"
+ENV DOCKER_ENV=true
 
 # Add node packages to path 
 ENV PATH="/node_modules/.bin:${PATH}"
