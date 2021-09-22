@@ -72,7 +72,6 @@ class SlackService {
             await this.#openedPage.waitForNavigation({waitUntil: 'domcontentloaded'});
             var url = await this.#openedPage.url();
             this.#configuration.clientUrl = url;
-            this.#states.isInChannel = true;
             // TODO: Catch if login fail
         }
         
