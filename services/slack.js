@@ -28,10 +28,10 @@ class SlackService {
     async init() {
         this.#browserInstance = await puppeteer.launch({
             headless: typeof this.#configuration.isInDocker === 'undefined' ? false : true,
-            slowMo: 50, //this.#configuration.developMode ? 50 : 0,
+            slowMo: 50,
             executablePath: this.#configuration.chromePath,
             userDataDir: '.data/slack',
-            args: ['--use-fake-ui-for-media-stream', '--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox'],
+            args: ['--use-fake-ui-for-media-stream', '--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox', '--use-fake-device-for-media-stream', '--use-file-for-fake-audio-capture=/usr/src/app/sample.mp3'],
             ignoreDefaultArgs: ['--mute-audio'],
             defaultViewport: {
                 width: 1200,
@@ -74,7 +74,6 @@ class SlackService {
             var url = await this.#openedPage.url();
             this.#configuration.clientUrl = url;
             this.#states.isInChannel = true;
-            // TODO: Catch if login fail
         }
         
     }
@@ -94,8 +93,6 @@ class SlackService {
         console.log('✅ Here we go! I\'m in huddle.');
         this.#states.isInHuddle = true;
         this.#openedPage.screenshot({path: 'afterJoinHuddle.png'});
-
-        await this.sendMessage(':headphones: Hey, I\'m here! Let\'s listen a good music... :notes:');
     }
 
     async sendMessage(message) {
