@@ -6,16 +6,15 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 # Dependencies
 RUN apk add --update --no-cache \
     chromium git nodejs npm \
-    pulseaudio pulseaudio-alsa pulseaudio-utils alsa-lib alsa-utils alsa-tools
+    pulseaudio pulseaudio-alsa pulseaudio-utils alsa-lib alsa-utils alsa-tools dbus
     
 # Change user
 USER appuser
 WORKDIR /usr/src/app
 
 # Audio process
-COPY sample.mp3 /opt/media/sample.mp3
+COPY sample.wav /opt/media/sample.wav
 COPY entrypoint.sh /opt/bin/entrypoint.sh
-ENTRYPOINT /opt/bin/entrypoint.sh
 
 # Do not use puppeteer embedded chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
@@ -34,4 +33,5 @@ RUN mv node_modules ../
 COPY . .
 
 EXPOSE 3000
-CMD ["node", "index.js"]
+ENTRYPOINT /opt/bin/entrypoint.sh
+# CMD ["node", "index.js"]

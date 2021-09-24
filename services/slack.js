@@ -11,7 +11,7 @@ class SlackService {
         huddleChannel: process.env.SLACK_CHANNEL_ID,
         developMode: process.env.NODE_ENV === 'development',
         chromePath: process.env.CHROMIUM_PATH,
-        isInDocker: process.env.DOCKER_ENV
+        isInDocker: process.env.DOCKER_ENV || false
     };
 
     #browserInstance;
@@ -27,11 +27,11 @@ class SlackService {
 
     async init() {
         this.#browserInstance = await puppeteer.launch({
-            headless: typeof this.#configuration.isInDocker === 'undefined' ? false : true,
+            headless: this.#configuration.isInDocker ? true : false,
             slowMo: 50,
             executablePath: this.#configuration.chromePath,
             userDataDir: '.data/slack',
-            args: ['--use-fake-ui-for-media-stream', '--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox', '--use-fake-device-for-media-stream', '--use-file-for-fake-audio-capture=/usr/src/app/sample.mp3'],
+            args: ['--use-fake-ui-for-media-stream', '--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox', '--autoplay-policy=no-user-gesture-required'],
             ignoreDefaultArgs: ['--mute-audio'],
             defaultViewport: {
                 width: 1200,
@@ -68,7 +68,7 @@ class SlackService {
             await this.#openedPage.click('#signin_btn');
             this.#states.logged = true;
             console.log('✅ I\'m in! Redirecting...');
-            this.#openedPage.screenshot({path: 'loggedin.png'});
+            // this.#openedPage.screenshot({path: 'loggedin.png'});
 
             await this.#openedPage.waitForNavigation({waitUntil: 'domcontentloaded'});
             var url = await this.#openedPage.url();
@@ -86,13 +86,13 @@ class SlackService {
         }
 
         console.log('🤞 Joing huddle...');
-        this.#openedPage.screenshot({path: 'beforeJoinHuddle.png'});
+        // this.#openedPage.screenshot({path: 'beforeJoinHuddle.png'});
         await this.#openedPage.goto(`${this.#configuration.clientUrl}\\${this.#configuration.huddleChannel}`, {waitUntil: 'domcontentloaded'});
         await this.#openedPage.waitForSelector('#huddle_toggle');
         await this.#openedPage.click('#huddle_toggle');
         console.log('✅ Here we go! I\'m in huddle.');
         this.#states.isInHuddle = true;
-        this.#openedPage.screenshot({path: 'afterJoinHuddle.png'});
+        // this.#openedPage.screenshot({path: 'afterJoinHuddle.png'});
     }
 
     async sendMessage(message) {
