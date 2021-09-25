@@ -31,7 +31,7 @@ class SlackService {
             slowMo: 50,
             executablePath: this.#configuration.chromePath,
             userDataDir: '.data/slack',
-            args: ['--use-fake-ui-for-media-stream', '--no-sandbox','--enable-blink-features=GetUserMedia','--autoplay-policy=no-user-gesture-required'],
+            args: ['--use-fake-ui-for-media-stream','--autoplay-policy=no-user-gesture-required','--disable-dev-shm-usage','--disable-gpu', '--disable-setuid-sandbox','--no-sandbox'],
             ignoreDefaultArgs: ['--mute-audio'],
             defaultViewport: {
                 width: 1200,
@@ -85,7 +85,8 @@ class SlackService {
     }
 
     async joinHuddle() {
-        this.#openedPage.evaluate(_ => {
+        await this.#openedPage.waitForTimeout(15000);
+        await this.#openedPage.evaluate(_ => {
             console.log(`JUKEBOX: Slack device Prefs: ${localStorage.getItem('devicePrefs')}`);
             console.log(`JUKEBOX: For test: ${localStorage.getItem('SLACK_DEBUG_DISABLED')}`);
 
