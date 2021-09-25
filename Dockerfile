@@ -2,8 +2,11 @@ FROM node:16
 
 # Dependencies
 RUN apt-get -qqy update && apt-get -qqy install pulseaudio pulseaudio-utils \
-         gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget \
-         chromium 
+    gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget
+
+# install chrome
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+RUN dpkg -i google-chrome-stable_current_amd64.deb; apt-get -fy install
 
 # Add normal user and group with passwordless sudo
 RUN groupadd appuser --gid 1201 \
@@ -20,7 +23,7 @@ WORKDIR /home/appuser/app
 
 # Do not use puppeteer embedded chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-ENV CHROMIUM_PATH="/usr/bin/chromium"
+ENV CHROMIUM_PATH="/usr/bin/google-chrome-stable"
 ENV PUPPETEER_EXECUTABLE_PATH="${CHROMIUM_PATH}"
 ENV DOCKER_ENV=true
 

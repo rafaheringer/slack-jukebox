@@ -1,6 +1,7 @@
 import BaseService from './services/base.js';
 import SlackService  from './services/slack.js';
 import SpotifyService from './services/spotify.js';
+import YoutubeService from './services/youtube.js';
 
 (async() => {
     // Open browser
@@ -28,8 +29,16 @@ import SpotifyService from './services/spotify.js';
         await spotifyTab.doSearchAndPlayFirstResult('top brasil');
     }
 
+    // Youtube tab
+    async function youtube() {
+        var youtube = new YoutubeService(browserInstance);
+        await youtube.init();
+        await youtube.doSearchAndPlayFirstResult('top brasil');
+    }
+
     // START!
     slack();
-    spotify();
+    //spotify();
+    youtube();
 
 })();
