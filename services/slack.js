@@ -31,7 +31,7 @@ class SlackService {
             slowMo: 50,
             executablePath: this.#configuration.chromePath,
             userDataDir: '.data/slack',
-            args: ['--use-fake-ui-for-media-stream', '--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox', '--autoplay-policy=no-user-gesture-required'],
+            args: ['--use-fake-ui-for-media-stream', '--no-sandbox','--enable-blink-features=GetUserMedia','--autoplay-policy=no-user-gesture-required'],
             ignoreDefaultArgs: ['--mute-audio'],
             defaultViewport: {
                 width: 1200,
@@ -44,6 +44,12 @@ class SlackService {
         this.#openedPage.on('dialog', async dialog => {
             console.log(`Dialog opened: ${dialog.message()}`);
             await dialog.dismiss();
+        });
+
+        this.#openedPage.on('console', msg => {
+            if (msg._text.indexOf('JUKEBOX:') === 0) {
+                console.log(`Log from ${msg._text}`);
+            }
         });
     }
 
@@ -79,6 +85,15 @@ class SlackService {
     }
 
     async joinHuddle() {
+        this.#openedPage.evaluate(_ => {
+            console.log(`JUKEBOX: Slack device Prefs: ${localStorage.getItem('devicePrefs')}`);
+            console.log(`JUKEBOX: For test: ${localStorage.getItem('SLACK_DEBUG_DISABLED')}`);
+
+            navigator.mediaDevices.enumerateDevices().then((devices) => { 
+                console.log(`JUKEBOX: Devices ${JSON.stringify(devices)}`) ;
+            });
+        });
+        
         if (!this.#states.logged) {
             throw Error('How you think that I can enter a Huddle without did login?');
         } else if (!this.#states.isInChannel) {
