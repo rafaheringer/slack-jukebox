@@ -1,13 +1,14 @@
 import 'dotenv/config.js';
-import puppeteer from 'puppeteer-core';
 import BaseService from './base.js';
 
 class SlackService extends BaseService {
     #configuration;
     #states;
 
-    constructor() {
+    constructor(browserInstance) {
         super();
+
+        this._browserInstance = browserInstance;
 
         this.#configuration = {
             clientUrl: null,
@@ -31,8 +32,8 @@ class SlackService extends BaseService {
 
         console.log('[SLACK] 🤞 Started login...');
     
-        await this.openedPage.goto(`${this.#configuration.slackUrl}?no_sso=1`, {waitUntil: 'domcontentloaded'});
-        var url = await this.openedPage.url();
+        await this._openedPage.goto(`${this.#configuration.slackUrl}?no_sso=1`, {waitUntil: 'domcontentloaded'});
+        var url = await this._openedPage.url();
 
         if (url.indexOf('/client/') !== -1) {
             this.#states.logged = true;
@@ -40,16 +41,16 @@ class SlackService extends BaseService {
             this.#states.isInChannel = true;
             console.log('[SLACK] ✅ I\'m already logged in! Redirecting...');
         } else {
-            await this.openedPage.type('#email', this.#configuration.slackLogin);
-            await this.openedPage.type('#password', this.#configuration.slackPass);
-            await this.openedPage.click('#signin_btn');
+            await this._openedPage.type('#email', this.#configuration.slackLogin);
+            await this._openedPage.type('#password', this.#configuration.slackPass);
+            await this._openedPage.click('#signin_btn');
 
             this.#states.logged = true;
             console.log('[SLACK] ✅ I\'m in! Redirecting...');
             // TODO: catch login errors
 
-            await this.openedPage.waitForNavigation({waitUntil: 'domcontentloaded'});
-            var url = await this.openedPage.url();
+            await this._openedPage.waitForNavigation({waitUntil: 'domcontentloaded'});
+            var url = await this._openedPage.url();
             this.#configuration.clientUrl = url;
             this.#states.isInChannel = true;
         }
@@ -57,12 +58,9 @@ class SlackService extends BaseService {
     }
 
     async joinHuddle() {
-        await this.openedPage.waitForTimeout(15000);
-        await this.openedPage.evaluate(_ => {
-            console.log(`JUKEBOX: Slack device Prefs: ${localStorage.getItem('devicePrefs')}`);
-
+        await this._openedPage.evaluate(_ => {
             navigator.mediaDevices.enumerateDevices().then((devices) => { 
-                console.log(`JUKEBOX: Devices ${JSON.stringify(devices)}`) ;
+                console.log(`JUKEBOX: Devices: ${JSON.stringify(devices)}`) ;
             });
         });
         
@@ -73,9 +71,9 @@ class SlackService extends BaseService {
         }
 
         console.log('[SLACK] 🤞 Joing huddle...');
-        await this.openedPage.goto(`${this.#configuration.clientUrl}\\${this.#configuration.huddleChannel}`, {waitUntil: 'domcontentloaded'});
-        await this.openedPage.waitForSelector('#huddle_toggle');
-        await this.openedPage.click('#huddle_toggle');
+        await this._openedPage.goto(`${this.#configuration.clientUrl}\\${this.#configuration.huddleChannel}`, {waitUntil: 'domcontentloaded'});
+        await this._openedPage.waitForSelector('#huddle_toggle');
+        await this._openedPage.click('#huddle_toggle');
         console.log('[SLACK] ✅ Here we go! I\'m in huddle.');
         this.#states.isInHuddle = true;
     }
@@ -88,17 +86,17 @@ class SlackService extends BaseService {
         }
 
         console.log('Sending message...');
-        await this.openedPage.evaluate((selector, message) => {
+        await this._openedPage.evaluate((selector, message) => {
             document.querySelector(selector).innerHTML = message;
         }, 'div.ql-editor > p', message);
 
-        return await this.openedPage.click('[data-qa=texty_send_button]');
+        return await this._openedPage.click('[data-qa=texty_send_button]');
     }
 
     neverMuteWatcher() {
         const selector = '[data-qa=huddle_sidebar_footer_mute_button][aria-checked=false]';
-        this.openedPage.waitForSelector(selector, {timeout: 0}).then(async () => {
-            await this.openedPage.click(selector);
+        this._openedPage.waitForSelector(selector, {timeout: 0}).then(async () => {
+            await this._openedPage.click(selector);
             this.neverMuteWatcher();
         }, this.neverMuteWatcher);
     }

@@ -3,8 +3,8 @@ import 'dotenv/config.js';
 
 class BaseService {
     #settings;
-    browserInstance;
-    openedPage;
+    _browserInstance;
+    _openedPage;
 
     constructor() {
         this.#settings = {
@@ -14,8 +14,8 @@ class BaseService {
         };
     }
 
-    async init() {
-        this.browserInstance = await puppeteer.launch({
+    async startBrowser() {
+        this._browserInstance = await puppeteer.launch({
             headless: this.#settings.isInDocker ? true : false,
             slowMo: 50,
             executablePath: this.#settings.chromePath,
@@ -28,14 +28,20 @@ class BaseService {
             }
         });
 
-        this.openedPage = await this.browserInstance.newPage();
+        return new Promise(resolve => {
+            resolve(this._browserInstance);
+        });
+    }
 
-        this.openedPage.on('dialog', async dialog => {
+    async init() {
+        this._openedPage = await this._browserInstance.newPage();
+
+        this._openedPage.on('dialog', async dialog => {
             console.log(`Dialog opened: ${dialog.message()}`);
             await dialog.dismiss();
         });
 
-        this.openedPage.on('console', msg => {
+        this._openedPage.on('console', msg => {
             if (msg._text.indexOf('JUKEBOX:') === 0) {
                 console.log(`Log from ${msg._text}`);
             }
