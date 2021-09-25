@@ -8,6 +8,7 @@ class SlackService extends BaseService {
 
     constructor() {
         super();
+
         this.#configuration = {
             clientUrl: null,
             slackUrl: process.env.SLACK_URL,
@@ -25,10 +26,10 @@ class SlackService extends BaseService {
 
     async doLogin() {
         if (this.#states.logged) {
-            return console.warn('I\'m already logged.');
+            return console.warn('[SLACK] I\'m already logged.');
         }
 
-        console.log('🤞 Started login...');
+        console.log('[SLACK] 🤞 Started login...');
     
         await this.openedPage.goto(`${this.#configuration.slackUrl}?no_sso=1`, {waitUntil: 'domcontentloaded'});
         var url = await this.openedPage.url();
@@ -37,14 +38,15 @@ class SlackService extends BaseService {
             this.#states.logged = true;
             this.#configuration.clientUrl = url;
             this.#states.isInChannel = true;
-            console.log('✅ I\'m already logged in! Redirecting...');
+            console.log('[SLACK] ✅ I\'m already logged in! Redirecting...');
         } else {
             await this.openedPage.type('#email', this.#configuration.slackLogin);
             await this.openedPage.type('#password', this.#configuration.slackPass);
             await this.openedPage.click('#signin_btn');
+
             this.#states.logged = true;
-            console.log('✅ I\'m in! Redirecting...');
-            // this.openedPage.screenshot({path: 'loggedin.png'});
+            console.log('[SLACK] ✅ I\'m in! Redirecting...');
+            // TODO: catch login errors
 
             await this.openedPage.waitForNavigation({waitUntil: 'domcontentloaded'});
             var url = await this.openedPage.url();
@@ -58,7 +60,6 @@ class SlackService extends BaseService {
         await this.openedPage.waitForTimeout(15000);
         await this.openedPage.evaluate(_ => {
             console.log(`JUKEBOX: Slack device Prefs: ${localStorage.getItem('devicePrefs')}`);
-            console.log(`JUKEBOX: For test: ${localStorage.getItem('SLACK_DEBUG_DISABLED')}`);
 
             navigator.mediaDevices.enumerateDevices().then((devices) => { 
                 console.log(`JUKEBOX: Devices ${JSON.stringify(devices)}`) ;
@@ -66,19 +67,17 @@ class SlackService extends BaseService {
         });
         
         if (!this.#states.logged) {
-            throw Error('How you think that I can enter a Huddle without did login?');
+            throw Error('[SLACK] How you think that I can enter a Huddle without did login?');
         } else if (!this.#states.isInChannel) {
-            throw Error('I can\'t join huddle without entered a channel.');
+            throw Error('[SLACK] I can\'t join huddle without entered a channel.');
         }
 
-        console.log('🤞 Joing huddle...');
-        // this.openedPage.screenshot({path: 'beforeJoinHuddle.png'});
+        console.log('[SLACK] 🤞 Joing huddle...');
         await this.openedPage.goto(`${this.#configuration.clientUrl}\\${this.#configuration.huddleChannel}`, {waitUntil: 'domcontentloaded'});
         await this.openedPage.waitForSelector('#huddle_toggle');
         await this.openedPage.click('#huddle_toggle');
-        console.log('✅ Here we go! I\'m in huddle.');
+        console.log('[SLACK] ✅ Here we go! I\'m in huddle.');
         this.#states.isInHuddle = true;
-        // this.openedPage.screenshot({path: 'afterJoinHuddle.png'});
     }
 
     async sendMessage(message) {
