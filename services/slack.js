@@ -1,56 +1,26 @@
 import 'dotenv/config.js';
 import puppeteer from 'puppeteer-core';
+import BaseService from './base.js';
 
-class SlackService {
+class SlackService extends BaseService {
+    #configuration;
+    #states;
 
-    #configuration = {
-        clientUrl: null,
-        slackUrl: process.env.SLACK_URL,
-        slackLogin: process.env.SLACK_EMAIL,
-        slackPass: process.env.SLACK_PASSWORD,
-        huddleChannel: process.env.SLACK_CHANNEL_ID,
-        developMode: process.env.NODE_ENV === 'development',
-        chromePath: process.env.CHROMIUM_PATH,
-        isInDocker: process.env.DOCKER_ENV || false
-    };
-
-    #browserInstance;
-    #openedPage;
-
-    #states = {
-        logged: false,
-        isInChannel: false,
-        isInHuddle: false
-    };
-
-    constructor() {}
-
-    async init() {
-        this.#browserInstance = await puppeteer.launch({
-            headless: this.#configuration.isInDocker ? true : false,
-            slowMo: 50,
-            executablePath: this.#configuration.chromePath,
-            userDataDir: '.data/slack',
-            args: ['--use-fake-ui-for-media-stream','--autoplay-policy=no-user-gesture-required','--disable-dev-shm-usage','--disable-gpu', '--disable-setuid-sandbox','--no-sandbox'],
-            ignoreDefaultArgs: ['--mute-audio'],
-            defaultViewport: {
-                width: 1200,
-                height: 700
-            }
-        });
-
-        this.#openedPage = await this.#browserInstance.newPage();
-
-        this.#openedPage.on('dialog', async dialog => {
-            console.log(`Dialog opened: ${dialog.message()}`);
-            await dialog.dismiss();
-        });
-
-        this.#openedPage.on('console', msg => {
-            if (msg._text.indexOf('JUKEBOX:') === 0) {
-                console.log(`Log from ${msg._text}`);
-            }
-        });
+    constructor() {
+        super();
+        this.#configuration = {
+            clientUrl: null,
+            slackUrl: process.env.SLACK_URL,
+            slackLogin: process.env.SLACK_EMAIL,
+            slackPass: process.env.SLACK_PASSWORD,
+            huddleChannel: process.env.SLACK_CHANNEL_ID
+        };
+    
+        this.#states = {
+            logged: false,
+            isInChannel: false,
+            isInHuddle: false
+        };
     }
 
     async doLogin() {
@@ -60,8 +30,8 @@ class SlackService {
 
         console.log('🤞 Started login...');
     
-        await this.#openedPage.goto(`${this.#configuration.slackUrl}?no_sso=1`, {waitUntil: 'domcontentloaded'});
-        var url = await this.#openedPage.url();
+        await this.openedPage.goto(`${this.#configuration.slackUrl}?no_sso=1`, {waitUntil: 'domcontentloaded'});
+        var url = await this.openedPage.url();
 
         if (url.indexOf('/client/') !== -1) {
             this.#states.logged = true;
@@ -69,15 +39,15 @@ class SlackService {
             this.#states.isInChannel = true;
             console.log('✅ I\'m already logged in! Redirecting...');
         } else {
-            await this.#openedPage.type('#email', this.#configuration.slackLogin);
-            await this.#openedPage.type('#password', this.#configuration.slackPass);
-            await this.#openedPage.click('#signin_btn');
+            await this.openedPage.type('#email', this.#configuration.slackLogin);
+            await this.openedPage.type('#password', this.#configuration.slackPass);
+            await this.openedPage.click('#signin_btn');
             this.#states.logged = true;
             console.log('✅ I\'m in! Redirecting...');
-            // this.#openedPage.screenshot({path: 'loggedin.png'});
+            // this.openedPage.screenshot({path: 'loggedin.png'});
 
-            await this.#openedPage.waitForNavigation({waitUntil: 'domcontentloaded'});
-            var url = await this.#openedPage.url();
+            await this.openedPage.waitForNavigation({waitUntil: 'domcontentloaded'});
+            var url = await this.openedPage.url();
             this.#configuration.clientUrl = url;
             this.#states.isInChannel = true;
         }
@@ -85,8 +55,8 @@ class SlackService {
     }
 
     async joinHuddle() {
-        await this.#openedPage.waitForTimeout(15000);
-        await this.#openedPage.evaluate(_ => {
+        await this.openedPage.waitForTimeout(15000);
+        await this.openedPage.evaluate(_ => {
             console.log(`JUKEBOX: Slack device Prefs: ${localStorage.getItem('devicePrefs')}`);
             console.log(`JUKEBOX: For test: ${localStorage.getItem('SLACK_DEBUG_DISABLED')}`);
 
@@ -102,13 +72,13 @@ class SlackService {
         }
 
         console.log('🤞 Joing huddle...');
-        // this.#openedPage.screenshot({path: 'beforeJoinHuddle.png'});
-        await this.#openedPage.goto(`${this.#configuration.clientUrl}\\${this.#configuration.huddleChannel}`, {waitUntil: 'domcontentloaded'});
-        await this.#openedPage.waitForSelector('#huddle_toggle');
-        await this.#openedPage.click('#huddle_toggle');
+        // this.openedPage.screenshot({path: 'beforeJoinHuddle.png'});
+        await this.openedPage.goto(`${this.#configuration.clientUrl}\\${this.#configuration.huddleChannel}`, {waitUntil: 'domcontentloaded'});
+        await this.openedPage.waitForSelector('#huddle_toggle');
+        await this.openedPage.click('#huddle_toggle');
         console.log('✅ Here we go! I\'m in huddle.');
         this.#states.isInHuddle = true;
-        // this.#openedPage.screenshot({path: 'afterJoinHuddle.png'});
+        // this.openedPage.screenshot({path: 'afterJoinHuddle.png'});
     }
 
     async sendMessage(message) {
@@ -119,17 +89,17 @@ class SlackService {
         }
 
         console.log('Sending message...');
-        await this.#openedPage.evaluate((selector, message) => {
+        await this.openedPage.evaluate((selector, message) => {
             document.querySelector(selector).innerHTML = message;
         }, 'div.ql-editor > p', message);
 
-        return await this.#openedPage.click('[data-qa=texty_send_button]');
+        return await this.openedPage.click('[data-qa=texty_send_button]');
     }
 
     neverMuteWatcher() {
         const selector = '[data-qa=huddle_sidebar_footer_mute_button][aria-checked=false]';
-        this.#openedPage.waitForSelector(selector, {timeout: 0}).then(async () => {
-            await this.#openedPage.click(selector);
+        this.openedPage.waitForSelector(selector, {timeout: 0}).then(async () => {
+            await this.openedPage.click(selector);
             this.neverMuteWatcher();
         }, this.neverMuteWatcher);
     }
