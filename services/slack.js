@@ -30,7 +30,7 @@ class SlackService extends BaseService {
             return console.warn('[SLACK] I\'m already logged.');
         }
 
-        console.log('[SLACK] 🤞 Started login...');
+        console.log('[SLACK] 🤞 Starting login...');
     
         await this._openedPage.goto(`${this.#configuration.slackUrl}?no_sso=1`, {waitUntil: 'domcontentloaded'});
         var url = await this._openedPage.url();
