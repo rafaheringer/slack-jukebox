@@ -30,8 +30,9 @@ pacmd list-sources | grep -e 'index:' -e device.string -e 'name:'
 
 **Running on K8S:**
 ```SH
-kubectl create configmap slack-jukebox-config --from-env-file=.env
-kubectl apply -f slackjukebox-deployment.yaml,slackjukebox-service.yaml
+kubectl create namespace slack-jukebox
+kubectl create configmap slack-jukebox-config --from-env-file=.env --namespace=slack-jukebox
+kubectl apply -f slackjukebox-deployment.yaml,slackjukebox-service.yaml  --namespace=slack-jukebox
 ```
 
 ### Todo
