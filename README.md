@@ -29,3 +29,5 @@ pacmd list-sources | grep -e 'index:' -e device.string -e 'name:'
 
 ### Todo
 [ ] Review EACCESS permission when take Screenshots
+[x] Publish on Docker Hub
+[ ] Prepare to K8S

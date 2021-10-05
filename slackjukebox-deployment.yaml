@@ -3,20 +3,20 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    io.kompose.service: slackjukebox
-  name: slackjukebox
+    io.kompose.service: rafaheringer/slack-jukebox
+  name: rafaheringer/slack-jukebox
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: slackjukebox
+      io.kompose.service: rafaheringer/slack-jukebox
   strategy: {}
   template:
     metadata:
       annotations:
       creationTimestamp: null
       labels:
-        io.kompose.service: slackjukebox
+        io.kompose.service: rafaheringer/slack-jukebox
     spec:
       containers:
         - env:

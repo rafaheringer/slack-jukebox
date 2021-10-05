@@ -3,14 +3,14 @@ kind: Service
 metadata:
   creationTimestamp: null
   labels:
-    io.kompose.service: slackjukebox
-  name: slackjukebox
+    io.kompose.service: rafaheringer/slack-jukebox
+  name: rafaheringer/slack-jukebox
 spec:
   ports:
     - name: "3000"
       port: 3000
       targetPort: 3000
   selector:
-    io.kompose.service: slackjukebox
+    io.kompose.service: rafaheringer/slack-jukebox
 status:
   loadBalancer: {}

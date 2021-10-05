@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   slackjukebox:
-    image: slackjukebox
+    image: rafaheringer/slack-jukebox
     build:
       context: .
       dockerfile: ./Dockerfile
