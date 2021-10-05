@@ -23,3 +23,7 @@ paplay /home/appuser/app/sample.wav -v --device=MicOutput
 ```SH
 pacmd list-sources | grep -e 'index:' -e device.string -e 'name:'
 ```
+
+
+### Todo
+[ ] Resolve EACCESS permission when take Screenshots

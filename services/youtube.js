@@ -25,11 +25,12 @@ class YoutubeService extends BaseService {
             await this._openedPage.goto(`${this.#configuration.youtubeUrl}/results?search_query=${encodeURIComponent(term)}`, {waitUntil: 'domcontentloaded'});
             await this._openedPage.waitForSelector('#contents a#video-title');
             await this._openedPage.waitForTimeout(3000);
-            await this._openedPage.screenshot({path: 'youtube-while-searching.png'});
+            // await this._openedPage.screenshot({path: 'youtube-while-searching.png'});
             await this._openedPage.click('#contents a#video-title');
             await this._openedPage.waitForTimeout(3000);
-            await this._openedPage.screenshot({path: 'youtube-while-searching-click.png'});
+            // await this._openedPage.screenshot({path: 'youtube-while-searching-click.png'});
 
+            // For Youtube Music
             // await this._openedPage.waitForSelector('#contents ytmusic-responsive-list-item-renderer a');
             // await this._openedPage.click('#contents ytmusic-responsive-list-item-renderer a');
             // await this._openedPage.waitForSelector('.watch-button a [aria-label="Shuffle"]');
@@ -38,7 +39,7 @@ class YoutubeService extends BaseService {
         } catch(error) {
             console.error(`[YOUTUBE] 🚨 Error on search and play`);
             console.error(error);
-            await this._openedPage.screenshot({path: 'youtube-error-after-search.png'});
+            // await this._openedPage.screenshot({path: 'youtube-error-after-search.png'});
         }
         
     }

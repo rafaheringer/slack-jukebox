@@ -38,14 +38,9 @@ import YoutubeService from './services/youtube.js';
     }
 
     // START!
-    try {
-        slack();
-        //spotify();
-        //youtube();
-    } catch(exception) {
-        console.error('Exception:');
-        console.error(exception);
-    }
+    slack();
+    //spotify();
+    youtube();
     
 
 })();
