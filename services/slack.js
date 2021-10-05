@@ -108,7 +108,7 @@ class SlackService extends BaseService {
         this._openedPage.waitForSelector(selector, {timeout: 0}).then(async () => {
             console.log(`[SLACK] Entering in new huddle`);
             await this._openedPage.click(selector);
-            this._openedPage.click('[data-qa="huddle_join_modal_go"]').then(() => {
+            this._openedPage.click('[data-qa="huddle_join_modal_go"]').then(async () => {
                 await this._openedPage.waitForTimeout(5000);
                 this.acceptInvitationWatcher();
             },this.acceptInvitationWatcher);
