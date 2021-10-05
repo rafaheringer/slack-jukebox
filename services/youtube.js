@@ -1,5 +1,5 @@
 import 'dotenv/config.js';
-import BaseService from './base.js';
+import BaseService from './baseService.js';
 
 class YoutubeService extends BaseService {
     #configuration;
@@ -30,12 +30,10 @@ class YoutubeService extends BaseService {
             await this._openedPage.waitForTimeout(3000);
             await this._openedPage.screenshot({path: 'youtube-while-searching-click.png'});
 
-
             // await this._openedPage.waitForSelector('#contents ytmusic-responsive-list-item-renderer a');
             // await this._openedPage.click('#contents ytmusic-responsive-list-item-renderer a');
             // await this._openedPage.waitForSelector('.watch-button a [aria-label="Shuffle"]');
             // await this._openedPage.click('.watch-button a');
-
 
         } catch(error) {
             console.error(`[YOUTUBE] 🚨 Error on search and play`);
@@ -44,9 +42,6 @@ class YoutubeService extends BaseService {
         }
         
     }
-
-
-
 }
 
 export default YoutubeService;

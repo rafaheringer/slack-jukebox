@@ -1,5 +1,5 @@
 import 'dotenv/config.js';
-import BaseService from './base.js';
+import BaseService from './baseService.js';
 
 class SlackService extends BaseService {
     #configuration;
@@ -73,6 +73,7 @@ class SlackService extends BaseService {
         console.log('[SLACK] 🤞 Joing huddle...');
         await this._openedPage.goto(`${this.#configuration.clientUrl}\\${this.#configuration.huddleChannel}`, {waitUntil: 'domcontentloaded'});
         await this._openedPage.waitForSelector('#huddle_toggle');
+        await this._openedPage.waitForTimeout(1000);
         await this._openedPage.click('#huddle_toggle');
         console.log('[SLACK] ✅ Here we go! I\'m in huddle.');
         this.#states.isInHuddle = true;
@@ -97,12 +98,30 @@ class SlackService extends BaseService {
         const selector = '[data-qa=huddle_sidebar_footer_mute_button][aria-checked=false]';
         this._openedPage.waitForSelector(selector, {timeout: 0}).then(async () => {
             await this._openedPage.click(selector);
+            await this._openedPage.waitForTimeout(5000);
             this.neverMuteWatcher();
         }, this.neverMuteWatcher);
     }
 
     acceptInvitationWatcher() {
-        // TODO: Accept invitations from another huddles
+        const selector = '[data-qa="huddle_invite_join"]';
+        this._openedPage.waitForSelector(selector, {timeout: 0}).then(async () => {
+            await this._openedPage.click(selector);
+            try {
+                await this._openedPage.click('[data-qa="huddle_join_modal_go"]');
+            } catch(e) {}
+            await this._openedPage.waitForTimeout(5000);
+            this.acceptInvitationWatcher();
+        }, this.acceptInvitationWatcher);
+    }
+
+    generalDialogWatcher() {
+        const selector = '[data-qa="dialog_go"]';
+        this._openedPage.waitForSelector(selector, {timeout: 0}).then(async () => {
+            await this._openedPage.click(selector);
+            await this._openedPage.waitForTimeout(5000);
+            this.generalDialogWatcher();
+        }, this.generalDialogWatcher);
     }
 }
 

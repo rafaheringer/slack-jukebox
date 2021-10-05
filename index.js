@@ -1,4 +1,4 @@
-import BaseService from './services/base.js';
+import BaseService from './services/baseService.js';
 import SlackService  from './services/slack.js';
 import SpotifyService from './services/spotify.js';
 import YoutubeService from './services/youtube.js';
@@ -18,6 +18,7 @@ import YoutubeService from './services/youtube.js';
 
         slackTab.neverMuteWatcher();
         slackTab.acceptInvitationWatcher();
+        slackTab.generalDialogWatcher();
     }
     
 
@@ -37,8 +38,14 @@ import YoutubeService from './services/youtube.js';
     }
 
     // START!
-    slack();
-    //spotify();
-    youtube();
+    try {
+        slack();
+        //spotify();
+        //youtube();
+    } catch(exception) {
+        console.error('Exception:');
+        console.error(exception);
+    }
+    
 
 })();

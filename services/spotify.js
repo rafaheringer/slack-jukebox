@@ -1,5 +1,5 @@
 import 'dotenv/config.js';
-import BaseService from './base.js';
+import BaseService from './baseService.js';
 
 class SpotifyService extends BaseService {
     #configuration;
