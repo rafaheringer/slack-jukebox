@@ -14,7 +14,7 @@ SPOTIFY_EMAIL=<your_email>
 SPOTIFY_PASSWORD=<your_password>
 ```
 
-### Debuging
+### Debugging
 
 **Play sample audio**
 ```SH
@@ -26,8 +26,15 @@ paplay /home/appuser/app/sample.wav -v --device=MicOutput
 pacmd list-sources | grep -e 'index:' -e device.string -e 'name:'
 ```
 
+### Kubernetes
+
+**Running on K8S:**
+```SH
+kubectl create configmap slack-jukebox-config --from-env-file=.env
+kubectl apply -f slackjukebox-deployment.yaml,slackjukebox-service.yaml
+```
 
 ### Todo
 [ ] Review EACCESS permission when take Screenshots
 [x] Publish on Docker Hub
-[ ] Prepare to K8S
+[x] Prepare to K8S
