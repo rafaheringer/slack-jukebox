@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: slackjukebox
+  name: slackjukebox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: slackjukebox
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: slackjukebox
+    spec:
+      containers:
+        - env:
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  key: NODE_ENV
+                  name: env
+            - name: SLACK_CHANNEL_ID
+              valueFrom:
+                configMapKeyRef:
+                  key: SLACK_CHANNEL_ID
+                  name: env
+            - name: SLACK_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  key: SLACK_EMAIL
+                  name: env
+            - name: SLACK_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: SLACK_PASSWORD
+                  name: env
+            - name: SLACK_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: SLACK_URL
+                  name: env
+            - name: SPOTIFY_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  key: SPOTIFY_EMAIL
+                  name: env
+            - name: SPOTIFY_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: SPOTIFY_PASSWORD
+                  name: env
+          image: slackjukebox
+          name: slackjukebox
+          ports:
+            - containerPort: 3000
+          resources: {}
+          securityContext:
+            capabilities:
+              add:
+                - SYS_ADMIN
+      restartPolicy: Always
+status: {}

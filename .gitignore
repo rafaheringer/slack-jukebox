@@ -171,3 +171,7 @@ About
 
 # Portable Network Graphics
 *.png
+
+# Docker related
+env-configmap.yaml
+kubeconfig
